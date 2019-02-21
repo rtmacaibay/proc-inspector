@@ -423,14 +423,14 @@ void get_hardware() {
     int hashes = cpu_usage / 0.05;
     int i = 0;
     while (i < 20)
-    	if (i++ <= hashes)
+    	if (i++ < hashes)
     	    printf("#");
     	else
     	    printf("-");
 
     /* check if cpu_usage is nan */
     if (!isnan(cpu_usage))
-        printf("] %.1f%%\n", cpu_usage);
+        printf("] %.1f%%\n", cpu_usage * 100);
     else
     	printf("] 0.0%%\n");
 
@@ -565,7 +565,7 @@ void get_task_list() {
             			char *uid = strstr(buffer, "Uid");
             			char *threads = strstr(buffer, "Threads");
             			if (name) {
-            			    char *next = next_token(&name, "\t\n");
+                            char *next = next_token(&name, "\t\n");
             			    next = next_token(&name, "\t\n");
 				            if (strlen(next) > 24)
                                 next[25] = '\0';
@@ -578,14 +578,17 @@ void get_task_list() {
                         }		    
             			if (uid) {
             			    char *next = next_token(&uid, "\t");
-            			    next = next_token(&uid, " \t");
+            			    next = next_token(&uid, "\t");
             			    int id = atoi(next);
             			    struct passwd *pwu = getpwuid((uid_t) id);
-            			    if (pwu != NULL)
+            			    if (pwu != NULL) {
             				    strcat(ti.user, pwu->pw_name);
-            			    else
+                            }
+            			    else {
             				    strcat(ti.user, next);
-            			}
+                                free(pwu);
+                            }
+                        }
             			if (threads) {
             			    char *next = next_token(&threads, "\t");
             			    next = next_token(&threads, "\t");
